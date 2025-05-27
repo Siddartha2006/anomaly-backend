@@ -8,4 +8,5 @@ Pillow
 numpy
 opencv-python
 gunicorn
+gdown==5.1.0
 git+https://github.com/jacobgil/pytorch-grad-cam.git
