@@ -12,12 +12,12 @@ from torchvision.models import resnet18, ResNet18_Weights
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 
-# Import your swin model
+# Import your Swin model
 from models.swin_model import load_model as load_swin_model
 
 # --- Flask Setup ---
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://my-q7ri166tk-thriveds-projects.vercel.app"])  # Adjust to your frontend domain for better security
 
 UPLOAD_FOLDER = 'uploads'
 GRADCAM_FOLDER = 'gradcam_outputs'
@@ -63,7 +63,6 @@ def register():
     users.insert_one({'username': username, 'password': password})
     return jsonify({'status': 'registered'})
 
-
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -75,7 +74,6 @@ def login():
         return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'fail'})
-
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
@@ -98,7 +96,7 @@ def upload_image():
     ])
     input_tensor = transform(img_pil).unsqueeze(0).to(device)
 
-    # Grad-CAM (use ResNet model only for CAM)
+    # Grad-CAM visualization (using ResNet)
     cam = GradCAM(model=gradcam_model, target_layers=target_layers)
     grayscale_cam = cam(input_tensor=input_tensor)[0]
     rgb_img = np.array(img_pil.resize((224, 224))) / 255.0
@@ -108,7 +106,7 @@ def upload_image():
     gradcam_path = os.path.join(app.config['GRADCAM_FOLDER'], gradcam_filename)
     cv2.imwrite(gradcam_path, cv2.cvtColor(cam_image, cv2.COLOR_RGB2BGR))
 
-    # Swin Transformer classification
+    # Classification with Swin Transformer
     with torch.no_grad():
         outputs = classifier_model(input_tensor)
         probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
@@ -117,23 +115,24 @@ def upload_image():
 
     predicted_label = class_labels[predicted_class] if predicted_class < len(class_labels) else 'unknown'
 
+    # Render-deployed URL structure: adjust the URLs dynamically
+    backend_url = request.host_url.rstrip('/')
+
     return jsonify({
-        'uploaded_image_url': f'http://127.0.0.1:5000/uploads/{filename}',
-        'gradcam_image_url': f'http://127.0.0.1:5000/gradcam_outputs/{gradcam_filename}',
+        'uploaded_image_url': f'{backend_url}/uploads/{filename}',
+        'gradcam_image_url': f'{backend_url}/gradcam_outputs/{gradcam_filename}',
         'predicted_label': predicted_label,
         'confidence_score': f"{confidence:.2f}"
     })
-
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-
 @app.route('/gradcam_outputs/<filename>')
 def gradcam_file(filename):
     return send_from_directory(app.config['GRADCAM_FOLDER'], filename)
 
-
+# --- Production Entrypoint ---
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
