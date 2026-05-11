@@ -10,3 +10,4 @@ opencv-python
 gunicorn
 gdown==5.1.0
 git+https://github.com/jacobgil/pytorch-grad-cam.git
+https://www.tinkercad.com/things/3vKT7fJJINl/editel?sharecode=I3Ions3TAwCcbpw51_wMejXXpAVGVKp6-evPnNCn6uQ
