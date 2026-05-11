@@ -11,3 +11,4 @@ gunicorn
 gdown==5.1.0
 git+https://github.com/jacobgil/pytorch-grad-cam.git
 https://www.tinkercad.com/things/3vKT7fJJINl/editel?sharecode=I3Ions3TAwCcbpw51_wMejXXpAVGVKp6-evPnNCn6uQ
+https://www.tinkercad.com/things/kdADkJcGf0D-terrific-migelo-bruticus/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard&sharecode=BFolZZ1Z6QEvuDAIVqeJOHunzwDru-Q5OHNHXEczPro
